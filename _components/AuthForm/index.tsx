@@ -4,15 +4,26 @@ import Input from "../Input";
 import FigitalButton from "../Button";
 
 import { StyleSheet } from "react-native";
+import { useEvents } from "../../context/Events";
 
 export default function AuthForm() {
     const [phoneNumber, setPhoneNumber] = useState("");
+    const events = useEvents();
+
+    function openSnackbar(message:string) {
+        events.emitEvent("snackbar", {
+            message,
+            mode: 'warning',
+        })
+    }
 
     const handleClickSend = () => {
-        if(!phoneNumber.startsWith('09') && !phoneNumber.startsWith("98")) {
+        if (!phoneNumber.startsWith('09') && !phoneNumber.startsWith("98")) {
+            openSnackbar("شماره شما صحیح نیست! لطفا دوباره وارد کنید.");
             return;
         }
-        if(phoneNumber.length != 11) {
+        if (phoneNumber.length != 11) {
+            openSnackbar("شماره شما صحیح نیست! لطفا دوباره وارد کنید.");
             return;
         }
 
@@ -23,18 +34,18 @@ export default function AuthForm() {
 
     const handleChangePhoneNumber = (text: string) => {
         const allNum = /[0-9]/.exec(text) || text.length == 0
-        if (text.length < 12  && allNum) {
+        if (text.length < 12 && allNum) {
             setPhoneNumber(() => text)
         }
     }
 
 
     return <View style={styles.authForm}>
-        <Input 
-        value={phoneNumber} 
-        inputStyles={{ textAlign: 'center' , fontSize:18}} 
-        title="شماره تلفن:" onChange={handleChangePhoneNumber} />
-        <FigitalButton title="تایید" onPress={handleClickSend}/>
+        <Input
+            value={phoneNumber}
+            inputStyles={{ textAlign: 'center', fontSize: 18 }}
+            title="شماره تلفن:" onChange={handleChangePhoneNumber} />
+        <FigitalButton title="تایید" onPress={handleClickSend} />
     </View>
 }
 
