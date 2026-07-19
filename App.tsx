@@ -4,13 +4,13 @@
  *
  * @format
  */
-
-import { NewAppScreen } from '@react-native/new-app-screen';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import {
   SafeAreaProvider,
-  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import Input from './_components/Input';
+import FigitalButton from './_components/Button';
+import AuthForm from './_components/AuthForm';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -24,14 +24,10 @@ function App() {
 }
 
 function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
+      <AuthForm />
     </View>
   );
 }
@@ -39,6 +35,9 @@ function AppContent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    fontFamily:"Farhang2-Regular.ttf",
+    paddingTop:24,
+    paddingBottom:24,
   },
 });
 

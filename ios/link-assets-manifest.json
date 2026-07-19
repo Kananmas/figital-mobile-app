@@ -1,0 +1,37 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/Doran-VF.woff",
+      "sha1": "f589f151ab3f8d590a9b8dd1ec0e013e560b8a72"
+    },
+    {
+      "path": "assets/fonts/Doran-VF.woff2",
+      "sha1": "64262569f29112c39d40b66c563ce33a5c760dde"
+    },
+    {
+      "path": "assets/fonts/DoranFaNum-VF.woff",
+      "sha1": "7cb84469c69fa5c4c88e09f711bbfd499f2a183e"
+    },
+    {
+      "path": "assets/fonts/DoranFaNum-VF.woff2",
+      "sha1": "133cb6a06cf4210339febedecf2a24bc0a3f5072"
+    },
+    {
+      "path": "assets/fonts/Farhang2-Medium.woff2",
+      "sha1": "798477f9fa5693c117690e1f3d030c37dddf64ff"
+    },
+    {
+      "path": "assets/fonts/Farhang2-Regular.ttf",
+      "sha1": "89852507482b6ba0bab76eb496e140d816cb3ced"
+    },
+    {
+      "path": "assets/fonts/Farhang2FaNum-Regular.ttf",
+      "sha1": "66d542325c1f80a9b35f2514d8cd30d20f20c19c"
+    },
+    {
+      "path": "assets/fonts/FarhangDot1FaNum-DemiBold.ttf",
+      "sha1": "6a9e0113648dcf5ed0234a97fce8dd30e9e3645e"
+    }
+  ]
+}

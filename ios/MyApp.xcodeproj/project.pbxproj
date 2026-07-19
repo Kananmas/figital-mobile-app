@@ -11,6 +11,14 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		02B9D165C2D64513AF32BDB0 /* Farhang2-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C8D0FAD46CA746E28C2BDBF1 /* Farhang2-Regular.ttf */; };
+		D8C5088979CB4982913E4A58 /* Farhang2FaNum-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A8F1818738C1443B92EDCFEB /* Farhang2FaNum-Regular.ttf */; };
+		660D2D22960947549CD129D2 /* FarhangDot1FaNum-DemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 410DCC1EFAF74ADCA04FB68D /* FarhangDot1FaNum-DemiBold.ttf */; };
+		88EEA5864D2744C4BF958EA7 /* Doran-VF.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = 9CE34C37A793452791F70B79 /* Doran-VF.woff2 */; };
+		6A08358B115E4358847622C5 /* DoranFaNum-VF.woff in Resources */ = {isa = PBXBuildFile; fileRef = 878D29C42184467896619192 /* DoranFaNum-VF.woff */; };
+		FB7F3E1081BC4D8286275989 /* DoranFaNum-VF.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = 6FB32910363641A28CC79FF9 /* DoranFaNum-VF.woff2 */; };
+		7501D0A28F8E45D498905374 /* Doran-VF.woff in Resources */ = {isa = PBXBuildFile; fileRef = 06D2122E4C344DB7B85D746D /* Doran-VF.woff */; };
+		B21D65A2342F4E67A4D8CAA5 /* Farhang2-Medium.woff2 in Resources */ = {isa = PBXBuildFile; fileRef = 6B0AFD56B4584FB49D1C557B /* Farhang2-Medium.woff2 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +32,14 @@
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = MyApp/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MyApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		C8D0FAD46CA746E28C2BDBF1 /* Farhang2-Regular.ttf */ = {isa = PBXFileReference; name = "Farhang2-Regular.ttf"; path = "../assets/fonts/Farhang2-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		A8F1818738C1443B92EDCFEB /* Farhang2FaNum-Regular.ttf */ = {isa = PBXFileReference; name = "Farhang2FaNum-Regular.ttf"; path = "../assets/fonts/Farhang2FaNum-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		410DCC1EFAF74ADCA04FB68D /* FarhangDot1FaNum-DemiBold.ttf */ = {isa = PBXFileReference; name = "FarhangDot1FaNum-DemiBold.ttf"; path = "../assets/fonts/FarhangDot1FaNum-DemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		9CE34C37A793452791F70B79 /* Doran-VF.woff2 */ = {isa = PBXFileReference; name = "Doran-VF.woff2"; path = "../assets/fonts/Doran-VF.woff2"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		878D29C42184467896619192 /* DoranFaNum-VF.woff */ = {isa = PBXFileReference; name = "DoranFaNum-VF.woff"; path = "../assets/fonts/DoranFaNum-VF.woff"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		6FB32910363641A28CC79FF9 /* DoranFaNum-VF.woff2 */ = {isa = PBXFileReference; name = "DoranFaNum-VF.woff2"; path = "../assets/fonts/DoranFaNum-VF.woff2"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		06D2122E4C344DB7B85D746D /* Doran-VF.woff */ = {isa = PBXFileReference; name = "Doran-VF.woff"; path = "../assets/fonts/Doran-VF.woff"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		6B0AFD56B4584FB49D1C557B /* Farhang2-Medium.woff2 */ = {isa = PBXFileReference; name = "Farhang2-Medium.woff2"; path = "../assets/fonts/Farhang2-Medium.woff2"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +90,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				D0AFC9C24F404718A69AD248 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -96,6 +113,22 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		D0AFC9C24F404718A69AD248 /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				C8D0FAD46CA746E28C2BDBF1 /* Farhang2-Regular.ttf */,
+				A8F1818738C1443B92EDCFEB /* Farhang2FaNum-Regular.ttf */,
+				410DCC1EFAF74ADCA04FB68D /* FarhangDot1FaNum-DemiBold.ttf */,
+				9CE34C37A793452791F70B79 /* Doran-VF.woff2 */,
+				878D29C42184467896619192 /* DoranFaNum-VF.woff */,
+				6FB32910363641A28CC79FF9 /* DoranFaNum-VF.woff2 */,
+				06D2122E4C344DB7B85D746D /* Doran-VF.woff */,
+				6B0AFD56B4584FB49D1C557B /* Farhang2-Medium.woff2 */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -159,6 +192,14 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				02B9D165C2D64513AF32BDB0 /* Farhang2-Regular.ttf in Resources */,
+				D8C5088979CB4982913E4A58 /* Farhang2FaNum-Regular.ttf in Resources */,
+				660D2D22960947549CD129D2 /* FarhangDot1FaNum-DemiBold.ttf in Resources */,
+				88EEA5864D2744C4BF958EA7 /* Doran-VF.woff2 in Resources */,
+				6A08358B115E4358847622C5 /* DoranFaNum-VF.woff in Resources */,
+				FB7F3E1081BC4D8286275989 /* DoranFaNum-VF.woff2 in Resources */,
+				7501D0A28F8E45D498905374 /* Doran-VF.woff in Resources */,
+				B21D65A2342F4E67A4D8CAA5 /* Farhang2-Medium.woff2 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
