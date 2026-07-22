@@ -38,6 +38,8 @@ export default function AuthProvider({ children }: React.PropsWithChildren) {
             if (typeof value === 'string') {
                 setAccessToken(() => value)
             }
+
+            console.log(value)
         })
 
         getItem(REFRESH_TOKEN_KEY).then((value) => {

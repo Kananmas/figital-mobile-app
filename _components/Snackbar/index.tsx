@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Animated, StyleSheet, Text } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import { useEvents } from "../../context/Events";
 import { CircleAlert } from "lucide-react-native";
 
 let timeout: number | null = null;
 
 const MODES = {
-    SUCCESS:'success',
-    WARNING:'warning',
-    ERROR:'error',
+    SUCCESS: 'success',
+    WARNING: 'warning',
+    ERROR: 'error',
 }
 
 export default function Snackbar() {
@@ -18,7 +18,7 @@ export default function Snackbar() {
     const events = useEvents();
 
     const borderColor = useMemo(() => {
-        switch(mode) {
+        switch (mode) {
             case MODES.SUCCESS:
                 return "#c1ff80";
             case MODES.WARNING:
@@ -28,7 +28,7 @@ export default function Snackbar() {
             default:
                 return 'black';
         }
-    } , [mode])
+    }, [mode])
 
     const animRef = useRef(new Animated.Value(0)).current
 
@@ -63,13 +63,15 @@ export default function Snackbar() {
         styles.snackbar,
         {
             borderColor,
-            transform:[{translateX:animRef}]
+            transform: [{ translateX: animRef }]
         }
     ]}>
-        <CircleAlert color={borderColor}/>
-        <Text style={{direction:"rtl" , fontSize:14}}>
-            {message}
-        </Text>
+        <View style={styles.main}>
+            <CircleAlert color={borderColor} />
+            <Text style={{ direction: "rtl", fontSize: 14 }}>
+                {message}
+            </Text>
+        </View>
     </Animated.View>
 }
 
@@ -84,12 +86,20 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderColor: 'black',
         borderRadius: 12,
-        top:60,
+        top: 60,
         padding: 4,
-        gap:4,
+        gap: 4,
         display: 'flex',
-        flexDirection:'row-reverse',
-        alignItems:'center',
-        justifyContent: 'space-evenly',
+        flexDirection: 'row-reverse',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
     },
+    main: {
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        flex: 1,
+        gap:12,
+        justifyContent: "center",
+        alignItems: 'center'
+    }
 })

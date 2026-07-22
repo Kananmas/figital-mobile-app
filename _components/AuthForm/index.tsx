@@ -43,7 +43,7 @@ export default function AuthForm() {
                 }),
                 method: "POST",
                 headers: {
-                    'content-type':'application/json',
+                    'content-type': 'application/json',
                     credentials: "omit",
                 }
             })
@@ -73,13 +73,23 @@ export default function AuthForm() {
                 phone_number: phoneNumber,
                 otp_code: otpCode
             }),
-            method: "POST"
+            method: "POST",
+            headers: {
+                'content-type': 'application/json',
+                credentials: "omit",
+            }
         })
 
+        setLoading(() => true)
         if (response.ok) {
             const result = await response.json();
             auth.setAccessToken(() => result.access_token)
+            openSnackbar("ورود با موفقیت!" , "success")
         }
+
+
+        setLoading(() => false)
+
     }
 
     const handleChangePhoneNumber = (text: string) => {
@@ -93,7 +103,7 @@ export default function AuthForm() {
     const handleChangeCode = (text: string) => {
         if (loading) return;
         const allNum = /[0-9]/.exec(text) || !text;
-        if (text.length < 6 && allNum) {
+        if (text.length < 7 && allNum) {
             setOtpCode(() => text);
         }
     }

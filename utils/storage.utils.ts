@@ -1,8 +1,15 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+    addToStorage,
+    getStorage,
+    removeFromStorage,
+} from "./file-system.utils";
 
 export async function setItem<T>(key: string, value: T) {
     try {
-        await AsyncStorage.setItem(key, JSON.stringify(value));
+        await addToStorage(
+            key,
+            value
+        );
     } catch (err) {
         console.error(err);
     }
@@ -10,13 +17,13 @@ export async function setItem<T>(key: string, value: T) {
 
 export async function getItem<T>(key: string): Promise<T | null> {
     try {
-        const value = await AsyncStorage.getItem(key);
+        const value = await getStorage(key);
 
-        if (value === null) {
+        if (value === undefined) {
             return null;
         }
 
-        return JSON.parse(value);
+        return value as T;
     } catch (err) {
         console.error(err);
         return null;
@@ -25,7 +32,7 @@ export async function getItem<T>(key: string): Promise<T | null> {
 
 export async function removeItem(key: string) {
     try {
-        await AsyncStorage.removeItem(key);
+        await removeFromStorage(key);
     } catch (err) {
         console.error(err);
     }

@@ -1,4 +1,4 @@
-export const AUTH_API_BASE = __DEV__ ? "http://localhost:5000" : "https://api.figital3d.com";
+export const AUTH_API_BASE =  "https://api.figital3d.com";
 export const CHAT_API_BASE = __DEV__ ? "http://localhost:3001" : "https://chat.figital3d.com";
 
 
