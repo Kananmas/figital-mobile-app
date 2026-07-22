@@ -5,19 +5,25 @@ import FigitalButton from "../Button";
 
 import { StyleSheet } from "react-native";
 import { useEvents } from "../../context/Events";
+import { useAuth } from "../../context/Auth";
+import { AUTH_API_ENDPOINTS } from "../../constants/api.consts";
 
 export default function AuthForm() {
     const [phoneNumber, setPhoneNumber] = useState("");
+    const [otpCode, setOtpCode] = useState("");
+    const [showOtp, setShowOtp] = useState(false)
+    const [loading, setLoading] = useState(false);
     const events = useEvents();
+    const auth = useAuth();
 
-    function openSnackbar(message:string) {
+    function openSnackbar(message: string, mode = 'warning') {
         events.emitEvent("snackbar", {
             message,
-            mode: 'warning',
+            mode,
         })
     }
 
-    const handleClickSend = () => {
+    const handleClickSend = async () => {
         if (!phoneNumber.startsWith('09') && !phoneNumber.startsWith("98")) {
             openSnackbar("شماره شما صحیح نیست! لطفا دوباره وارد کنید.");
             return;
@@ -29,23 +35,87 @@ export default function AuthForm() {
 
 
         //request
+        setLoading(() => true)
+        try {
+            const response = await fetch(AUTH_API_ENDPOINTS.REQUEST_OTP, {
+                body: JSON.stringify({
+                    phone_number: phoneNumber,
+                }),
+                method: "POST",
+                headers: {
+                    'content-type':'application/json',
+                    credentials: "omit",
+                }
+            })
+
+            if (response.ok) {
+                setShowOtp(() => true)
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                openSnackbar(error?.message, 'error')
+            }
+        } finally {
+            setLoading(() => false)
+        }
 
     }
 
+
+    async function handleClickConfirm() {
+        if (otpCode.length == 0) {
+            openSnackbar("لطفا کد را وارد نامید!");
+            return;
+        }
+
+        const response = await fetch(AUTH_API_ENDPOINTS.VERIFY_OTP, {
+            body: JSON.stringify({
+                phone_number: phoneNumber,
+                otp_code: otpCode
+            }),
+            method: "POST"
+        })
+
+        if (response.ok) {
+            const result = await response.json();
+            auth.setAccessToken(() => result.access_token)
+        }
+    }
+
     const handleChangePhoneNumber = (text: string) => {
+        if (loading) return;
         const allNum = /[0-9]/.exec(text) || text.length == 0
         if (text.length < 12 && allNum) {
             setPhoneNumber(() => text)
         }
     }
 
+    const handleChangeCode = (text: string) => {
+        if (loading) return;
+        const allNum = /[0-9]/.exec(text) || !text;
+        if (text.length < 6 && allNum) {
+            setOtpCode(() => text);
+        }
+    }
+
 
     return <View style={styles.authForm}>
-        <Input
-            value={phoneNumber}
-            inputStyles={{ textAlign: 'center', fontSize: 18 }}
-            title="شماره تلفن:" onChange={handleChangePhoneNumber} />
-        <FigitalButton title="تایید" onPress={handleClickSend} />
+        {
+            !showOtp ? <>
+                <Input
+                    value={phoneNumber}
+                    inputStyles={styles.inputStyles}
+                    title="شماره تلفن:" onChange={handleChangePhoneNumber} />
+                <FigitalButton disabled={loading} title="تایید" onPress={handleClickSend} />
+            </> :
+                <>
+                    <Input
+                        value={otpCode}
+                        inputStyles={styles.inputStyles}
+                        title="کد ورود:" onChange={handleChangeCode} />
+                    <FigitalButton disabled={loading} title="ورود" onPress={handleClickConfirm} />
+                </>
+        }
     </View>
 }
 
@@ -56,5 +126,6 @@ const styles = StyleSheet.create({
         marginTop: 300,
         display: 'flex',
         justifyContent: 'center'
-    }
+    },
+    inputStyles: { textAlign: 'center', fontSize: 18 },
 })

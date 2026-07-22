@@ -4,11 +4,15 @@ import styleVars from "../../style.vars";
 export default function FigitalButton({
     onPress,
     title,
+    disabled = false,
 }:{
     title:string,
     onPress?:(e:GestureResponderEvent) => void
+    disabled?:boolean
 }) {
-    return <Pressable style={styles.button}  onPress={onPress}>
+
+
+    return <Pressable style={styles.button} disabled={disabled} onPress={onPress}>
         <Text style={styles.buttonText}>
             {title}
         </Text>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, StyleSheet, Text } from "react-native";
 import { useEvents } from "../../context/Events";
+import { CircleAlert } from "lucide-react-native";
 
 let timeout: number | null = null;
 
@@ -33,7 +34,7 @@ export default function Snackbar() {
 
     useEffect(() => {
         Animated.timing(animRef, {
-            toValue: show ? 10 : -300,
+            toValue: show ? 10 : -600,
             duration: 500,
             useNativeDriver: true,
         }).start()
@@ -65,7 +66,8 @@ export default function Snackbar() {
             transform:[{translateX:animRef}]
         }
     ]}>
-        <Text style={{direction:"rtl"}}>
+        <CircleAlert color={borderColor}/>
+        <Text style={{direction:"rtl" , fontSize:14}}>
             {message}
         </Text>
     </Animated.View>
@@ -77,14 +79,17 @@ export default function Snackbar() {
 const styles = StyleSheet.create({
     snackbar: {
         position: "absolute",
-        width: 300,
+        width: 310,
         height: 60,
         borderWidth: 3,
         borderColor: 'black',
         borderRadius: 12,
         top:60,
-        padding: 6,
+        padding: 4,
+        gap:4,
         display: 'flex',
-        justifyContent: 'center',
+        flexDirection:'row-reverse',
+        alignItems:'center',
+        justifyContent: 'space-evenly',
     },
 })
