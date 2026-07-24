@@ -86,9 +86,11 @@ export default function AuthForm() {
 
         if (response.ok) {
             const result = await response.json();
-            auth.setAccessToken(() => result.access_token)
-            auth.setRefreshToken(() => response.headers.get("set-cookie") ?? "")
-            await auth.saveTokens();
+            const accessToken = result.access_token;
+            const refreshToken = response.headers.get("set-cookie");
+            auth.setAccessToken(() => accessToken)
+            auth.setRefreshToken(() => refreshToken ?? "")
+            await auth.saveTokens(accessToken , refreshToken);
             openSnackbar("ورود با موفقیت!", "success")
             nav.setLocation("/rooms");
         }

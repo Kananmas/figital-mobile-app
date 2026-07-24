@@ -14,6 +14,7 @@ import EventsProvider from './context/Events';
 import AuthProvider from './context/Auth';
 import { PageProvider, Path } from './context/Pages';
 import Rooms from './pages/Rooms';
+import { PAGE_TYPES } from './constants/page-type.constants';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -34,8 +35,8 @@ function AppContent() {
         <View style={styles.container}>
           <Snackbar />
           <PageProvider>
-            <Path path='/'  element={<AuthForm />} />
-            <Path path='/rooms' element={<Rooms />} />
+            <Path path='/' type={PAGE_TYPES.UNKNOWN} element={<AuthForm />} />
+            <Path path='/rooms' type={PAGE_TYPES.PRIVATE} element={<Rooms />} />
           </PageProvider>
         </View>
       </AuthProvider>

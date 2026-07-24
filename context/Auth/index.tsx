@@ -20,7 +20,7 @@ const Context = createContext<AuthContext>({
     setUserInfo: () => { },
     refreshToken: '',
     setRefreshToken: () => { },
-    saveTokens: () => { },
+    saveTokens: (accessToken:string , refreshToken:string) => { },
 })
 
 export const useAuth = () => useContext(Context);
@@ -40,7 +40,6 @@ export default function AuthProvider({ children }: React.PropsWithChildren) {
         getItem(ACCESS_TOKEN_KEY).then((value) => {
             if (typeof value === 'string') {
                 setAccessToken(() => value)
-                console.log(`${ACCESS_TOKEN_KEY}:${value}`)
                 intiUserInfo(value);
             }
         })
@@ -48,7 +47,6 @@ export default function AuthProvider({ children }: React.PropsWithChildren) {
         getItem(REFRESH_TOKEN_KEY).then((value) => {
             if (typeof value === 'string') {
                 setRefreshToken(() => value)
-                console.log(`${REFRESH_TOKEN_KEY}:${value}`)
             }
 
         })
@@ -72,7 +70,7 @@ export default function AuthProvider({ children }: React.PropsWithChildren) {
         }
     }
 
-    async function saveTokens() {
+    async function saveTokens(accessToken:string , refreshToken:string) {
         if (accessToken) {
             await setItem(ACCESS_TOKEN_KEY, accessToken);
         }
