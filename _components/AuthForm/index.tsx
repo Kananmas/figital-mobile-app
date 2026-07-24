@@ -9,6 +9,7 @@ import { useAuth } from "../../context/Auth";
 import { AUTH_API_ENDPOINTS } from "../../constants/api.consts";
 import { Loader } from "lucide-react-native";
 import { Text } from "react-native-svg";
+import { useNav } from "../../context/Pages";
 
 export default function AuthForm() {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -17,6 +18,7 @@ export default function AuthForm() {
     const [loading, setLoading] = useState(false);
     const events = useEvents();
     const auth = useAuth();
+    const nav = useNav();
 
     function openSnackbar(message: string, mode = 'warning') {
         events.emitEvent("snackbar", {
@@ -88,6 +90,7 @@ export default function AuthForm() {
             auth.setRefreshToken(() => response.headers.get("set-cookie") ?? "")
             await auth.saveTokens();
             openSnackbar("ورود با موفقیت!", "success")
+            nav.setLocation("/rooms");
         }
 
 
@@ -145,7 +148,6 @@ export default function AuthForm() {
 const styles = StyleSheet.create({
     authForm: {
         height: 200,
-        marginTop: 300,
         display: 'flex',
         justifyContent: 'center'
     },

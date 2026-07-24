@@ -12,6 +12,8 @@ import AuthForm from './_components/AuthForm';
 import Snackbar from './_components/Snackbar';
 import EventsProvider from './context/Events';
 import AuthProvider from './context/Auth';
+import { PageProvider, Path } from './context/Pages';
+import Rooms from './pages/Rooms';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -31,7 +33,10 @@ function AppContent() {
       <AuthProvider>
         <View style={styles.container}>
           <Snackbar />
-          <AuthForm />
+          <PageProvider>
+            <Path path='/'  element={<AuthForm />} />
+            <Path path='/rooms' element={<Rooms />} />
+          </PageProvider>
         </View>
       </AuthProvider>
     </EventsProvider>
@@ -44,6 +49,8 @@ const styles = StyleSheet.create({
     fontFamily: "Farhang2FaNum-Regular.ttf",
     paddingTop: 24,
     paddingBottom: 24,
+    display:'flex',
+    justifyContent:"center",
   },
 });
 
