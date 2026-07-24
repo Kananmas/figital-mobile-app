@@ -24,10 +24,10 @@ export default function Input({
 
 
     return <View style={{ ...styles.holder, ...customStyles }}>
-        <Text style={{ ...styles.text, ...textStyles }}>{title?.toUpperCase()}</Text>
+        <Text style={{ ...styles.text, ...textStyles, fontFamily: styleVars.fontFamily }}>{title?.toUpperCase()}</Text>
         <TextInput
             value={value}
-            style={{ ...styles.input, ...inputStyles }}
+            style={{ ...styles.input, ...inputStyles, fontFamily: styleVars.fontFamily }}
             onChangeText={handleOnChange} />
     </View>
 }
@@ -44,12 +44,14 @@ const styles = StyleSheet.create({
         padding: 12,
     },
     input: {
+        fontFamily: styleVars.fontFamily,
         backgroundColor: styleVars.neutralColor,
         borderRadius: styleVars.verticalSpacing,
         paddingLeft: styleVars.horizontalSpacing,
         paddingRight: 8,
     },
     text: {
+        fontFamily: styleVars.fontFamily,
         fontSize: 20,
         marginBottom: styleVars.verticalSpacing,
         fontWeight: 600,

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 import { useEvents } from "../../context/Events";
 import { CircleAlert } from "lucide-react-native";
+import styleVars from "../../style.vars";
 
 let timeout: number | null = null;
 
@@ -68,7 +69,7 @@ export default function Snackbar() {
     ]}>
         <View style={styles.main}>
             <CircleAlert color={borderColor} />
-            <Text style={{ direction: "rtl", fontSize: 14 }}>
+            <Text style={styles.message}>
                 {message}
             </Text>
         </View>
@@ -81,7 +82,9 @@ export default function Snackbar() {
 const styles = StyleSheet.create({
     snackbar: {
         position: "absolute",
-        minWidth: 200,
+        minWidth: 300,
+        maxWidth:300,
+        width:'auto',
         height: 60,
         borderWidth: 3,
         borderColor: 'black',
@@ -93,6 +96,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row-reverse',
         alignItems: 'center',
         justifyContent: 'center',
+        transform:[{translateX:-600}],
+        zIndex:11,
+        backgroundColor:'white'
     },
     main: {
         display: 'flex',
@@ -102,5 +108,10 @@ const styles = StyleSheet.create({
         gap:12,
         justifyContent: "center",
         alignItems: 'flex-end',
+    },
+    message: {
+        direction: "rtl",
+        fontFamily: styleVars.fontFamily,
+        fontSize: 14,
     }
 })

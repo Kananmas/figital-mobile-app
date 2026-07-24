@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import Input from "../Input";
 import FigitalButton from "../Button";
 
@@ -8,8 +8,8 @@ import { useEvents } from "../../context/Events";
 import { useAuth } from "../../context/Auth";
 import { AUTH_API_ENDPOINTS } from "../../constants/api.consts";
 import { Loader } from "lucide-react-native";
-import { Text } from "react-native-svg";
 import { useNav } from "../../context/Pages";
+import styleVars from "../../style.vars";
 
 export default function AuthForm() {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -32,7 +32,7 @@ export default function AuthForm() {
             openSnackbar("شماره شما صحیح نیست! لطفا دوباره وارد کنید.");
             return;
         }
-        if (phoneNumber.length != 11) {
+        if (phoneNumber.length !== 11) {
             openSnackbar("شماره شما صحیح نیست! لطفا دوباره وارد کنید.");
             return;
         }
@@ -67,7 +67,7 @@ export default function AuthForm() {
 
 
     async function handleClickConfirm() {
-        if (otpCode.length == 0) {
+        if (otpCode.length === 0) {
             openSnackbar("لطفا کد را وارد نامید!");
             return;
         }
@@ -92,7 +92,7 @@ export default function AuthForm() {
             auth.setRefreshToken(() => refreshToken ?? "")
             await auth.saveTokens(accessToken , refreshToken);
             openSnackbar("ورود با موفقیت!", "success")
-            nav.setLocation("/rooms");
+            nav.replace("/rooms");
         }
 
 
@@ -102,7 +102,7 @@ export default function AuthForm() {
 
     const handleChangePhoneNumber = (text: string) => {
         if (loading) return;
-        const allNum = /[0-9]/.exec(text) || text.length == 0
+        const allNum = /[0-9]/.exec(text) || text.length === 0
         if (text.length < 12 && allNum) {
             setPhoneNumber(() => text)
         }
@@ -119,7 +119,7 @@ export default function AuthForm() {
     if (loading) {
         return <View style={styles.loadingView}>
             <Loader size={60} color={"#71eb25ff"}/>
-            <Text>
+            <Text style={styles.loadingText}>
                 در حال ارسال
             </Text>
         </View>
@@ -159,5 +159,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    }
+    },
+    loadingText: {
+        fontFamily: styleVars.fontFamily,
+    },
 })

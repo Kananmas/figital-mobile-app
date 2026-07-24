@@ -1,94 +1,192 @@
-import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
-import { getItem, removeItem, setItem } from "../../utils/storage.utils"
-import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "../../constants/app.consts"
-import { AUTH_API_ENDPOINTS } from "../../constants/api.consts"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type Dispatch,
+  type PropsWithChildren,
+  type SetStateAction,
+} from 'react';
 
-interface AuthContext {
-    accessToken: string | null,
-    setAccessToken: Function | Dispatch<SetStateAction<string>>,
-    userInfo: null | object | Object
-    setUserInfo: Function | Dispatch<SetStateAction<null | object | Object>>
-    refreshToken: string | null,
-    setRefreshToken: Function | Dispatch<SetStateAction<string>>
-    saveTokens: Function,
+import {ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY} from '../../constants/app.consts';
+import {AUTH_API_ENDPOINTS} from '../../constants/api.consts';
+import {getItem, removeItem, setItem} from '../../utils/storage.utils';
+import {useNav} from '../Pages';
+
+interface UserInfo {
+  addresses: unknown[];
+  created_at: Date;
+  first_name: string | null;
+  id: string;
+  isAssociate: boolean;
+  is_admin: boolean;
+  last_name: string | null;
+  national_id: string | null;
+  orders: unknown[];
+  phone_number: string;
+  preferences: unknown;
+  transactions: unknown[];
 }
 
-const Context = createContext<AuthContext>({
-    accessToken: "",
-    setAccessToken: () => { },
-    userInfo: {},
-    setUserInfo: () => { },
-    refreshToken: '',
-    setRefreshToken: () => { },
-    saveTokens: (accessToken:string , refreshToken:string) => { },
-})
+interface AuthContext {
+  accessToken: string;
+  isAuthenticated: () => boolean;
+  isReady: boolean;
+  refreshToken: string;
+  saveTokens: (
+    accessToken: string,
+    refreshToken: string | null,
+  ) => Promise<void>;
+  setAccessToken: Dispatch<SetStateAction<string>>;
+  setRefreshToken: Dispatch<SetStateAction<string>>;
+  setUserInfo: Dispatch<SetStateAction<UserInfo | null>>;
+  userInfo: UserInfo | null;
+}
 
-export const useAuth = () => useContext(Context);
+const Context = createContext<AuthContext | null>(null);
 
-let interval: number | null = null;
+export const useAuth = () => {
+  const context = useContext(Context);
 
-export default function AuthProvider({ children }: React.PropsWithChildren) {
-    const [accessToken, setAccessToken] = useState("");
-    const [userInfo, setUserInfo] = useState<null | object | Object>(null);
-    const [refreshToken, setRefreshToken] = useState<string>("");
+  if (!context) {
+    throw new Error('useAuth must be used inside AuthProvider.');
+  }
 
-    useEffect(() => {
-        initTokens();
-    }, [])
+  return context;
+};
 
-    function initTokens() {
-        getItem(ACCESS_TOKEN_KEY).then((value) => {
-            if (typeof value === 'string') {
-                setAccessToken(() => value)
-                intiUserInfo(value);
-            }
-        })
+export default function AuthProvider({children}: PropsWithChildren) {
+  const [accessToken, setAccessToken] = useState('');
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [refreshToken, setRefreshToken] = useState('');
+  const [isReady, setIsReady] = useState(false);
+  const {replace} = useNav();
 
-        getItem(REFRESH_TOKEN_KEY).then((value) => {
-            if (typeof value === 'string') {
-                setRefreshToken(() => value)
-            }
+  const refreshUser = useCallback(async () => {
+    const response = await fetch(AUTH_API_ENDPOINTS.REFRESH, {
+      method: 'POST',
+      credentials: 'include',
+    });
 
-        })
+    if (!response.ok) {
+      setAccessToken('');
+      setRefreshToken('');
+      setUserInfo(null);
+      await Promise.all([
+        removeItem(ACCESS_TOKEN_KEY),
+        removeItem(REFRESH_TOKEN_KEY),
+      ]);
+      replace('/');
+      return;
     }
 
-    async function intiUserInfo(accessToken: string) {
-        const response = await fetch(AUTH_API_ENDPOINTS.USER_PROFILE, {
-            headers: {
-                "Authorization": `Bearer ${accessToken}`,
-            }
-        })
+    const data = await response.json();
+    const renewedAccessToken = data.access_token as string;
+    const renewedRefreshToken = response.headers.get('set-cookie') ?? '';
 
-        if (response.ok) {
-            const userData = await response.json();
-            setUserInfo(() => userData.user);
-        }
+    setAccessToken(renewedAccessToken);
+    setRefreshToken(renewedRefreshToken);
+    await Promise.all([
+      setItem(ACCESS_TOKEN_KEY, renewedAccessToken),
+      setItem(REFRESH_TOKEN_KEY, renewedRefreshToken),
+    ]);
+  }, [replace]);
 
-        if (response.status == 401) {
-            setAccessToken(() => "");
-            removeItem(ACCESS_TOKEN_KEY)
-        }
+  const initUserInfo = useCallback(
+    async (token: string) => {
+      const response = await fetch(AUTH_API_ENDPOINTS.USER_PROFILE, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUserInfo(userData.user);
+        return;
+      }
+
+      if (response.status === 401) {
+        setAccessToken('');
+        setUserInfo(null);
+        await removeItem(ACCESS_TOKEN_KEY);
+      }
+    },
+    [],
+  );
+
+  const initTokens = useCallback(async () => {
+    const [storedAccessToken, storedRefreshToken] = await Promise.all([
+      getItem<string>(ACCESS_TOKEN_KEY),
+      getItem<string>(REFRESH_TOKEN_KEY),
+    ]);
+
+    if (typeof storedAccessToken === 'string') {
+      setAccessToken(storedAccessToken);
+      initUserInfo(storedAccessToken).catch(error => {
+        console.warn('Could not load user profile:', error);
+      });
     }
 
-    async function saveTokens(accessToken:string , refreshToken:string) {
-        if (accessToken) {
-            await setItem(ACCESS_TOKEN_KEY, accessToken);
-        }
-
-        if (refreshToken) {
-            await setItem(REFRESH_TOKEN_KEY, refreshToken)
-        }
+    if (typeof storedRefreshToken === 'string') {
+      setRefreshToken(storedRefreshToken);
     }
 
-    return <Context.Provider value={{
+    setIsReady(true);
+  }, [initUserInfo]);
+
+  useEffect(() => {
+    initTokens().catch(error => {
+      console.warn('Could not initialize authentication:', error);
+      setIsReady(true);
+    });
+  }, [initTokens]);
+
+  useEffect(() => {
+    if (!accessToken && refreshToken && isReady) {
+      refreshUser().catch(error => {
+        console.warn('Could not refresh authentication:', error);
+      });
+    }
+  }, [accessToken, isReady, refreshToken, refreshUser]);
+
+  const saveTokens = useCallback(
+    async (nextAccessToken: string, nextRefreshToken: string | null) => {
+      const writes: Promise<void>[] = [];
+
+      if (nextAccessToken) {
+        writes.push(setItem(ACCESS_TOKEN_KEY, nextAccessToken));
+      }
+
+      if (nextRefreshToken) {
+        writes.push(setItem(REFRESH_TOKEN_KEY, nextRefreshToken));
+      }
+
+      await Promise.all(writes);
+    },
+    [],
+  );
+
+  const isAuthenticated = useCallback(
+    () => Boolean(accessToken && refreshToken),
+    [accessToken, refreshToken],
+  );
+
+  return (
+    <Context.Provider
+      value={{
         accessToken,
-        setAccessToken,
-        userInfo,
-        setUserInfo,
+        isAuthenticated,
+        isReady,
         refreshToken,
+        saveTokens,
+        setAccessToken,
         setRefreshToken,
-        saveTokens
-    }}>
-        {children}
+        setUserInfo,
+        userInfo,
+      }}>
+      {children}
     </Context.Provider>
+  );
 }

@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
         borderRadius:styleVars.radius,
     },
     buttonText: {
+        fontFamily: styleVars.fontFamily,
         fontSize:18,
         fontWeight:"600"
     }

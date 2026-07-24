@@ -1,5 +1,5 @@
 export const AUTH_API_BASE =  "https://api.figital3d.com";
-export const CHAT_API_BASE = __DEV__ ? "http://localhost:3001" : "https://chat.figital3d.com";
+export const CHAT_API_BASE = __DEV__ ? "http://10.0.2.2:3001" : "https://chat.figital3d.com";
 
 
 export const AUTH_API_ENDPOINTS = {

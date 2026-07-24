@@ -1,4 +1,5 @@
 const styleVars = {
+    fontFamily: "Farhang2FaNum-Regular",
     gap: 6,
     verticalSpacing: 10,
     horizontalSpacing: 10,

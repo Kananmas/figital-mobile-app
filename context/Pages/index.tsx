@@ -1,76 +1,236 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { createContext, useContext } from "react";
-import { getItem, removeItem, setItem } from "../../utils/storage.utils";
-import { AppState } from "react-native";
-import { useAuth } from "../Auth";
-import { PAGE_TYPES } from "../../constants/page-type.constants";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import {BackHandler} from 'react-native';
 
-type PageContext = {
-    location: string,
-    setLocation: Function | Dispatch<SetStateAction<string>>,
-}
+import {PAGE_TYPES} from '../../constants/page-type.constants';
+import {getItem, setItem} from '../../utils/storage.utils';
+import {useAuth} from '../Auth';
 
-const Context = createContext<PageContext>({
-    location: "/",
-    setLocation: () => { },
-})
+const LOCATION_STORAGE_KEY = 'location';
+const DEFAULT_LOCATION = '/';
 
+type NavigationState = {
+  history: string[];
+  isReady: boolean;
+  location: string;
+};
 
+type PageContextValue = {
+  canGoBack: boolean;
+  goBack: () => void;
+  isReady: boolean;
+  location: string;
+  navigate: (location: string) => void;
+  replace: (location: string) => void;
+};
 
-export const useNav = () => useContext(Context)
+const Context = createContext<PageContextValue | null>(null);
 
+const normalizeLocation = (location: string) => {
+  const trimmed = location.trim();
 
-export function PageProvider({ children }: { children: React.ReactNode }) {
-    const [location, setLocation] = useState("")
-    const LOCATION = "location";
+  if (!trimmed) {
+    return DEFAULT_LOCATION;
+  }
 
-    const navigate = (location: string) => {
-        setItem(LOCATION, location).then(() => {
-            setLocation(() => location)
-        })
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+};
 
-    }
+export const useNav = () => {
+  const context = useContext(Context);
 
-    useEffect(() => {
-        getItem(LOCATION).then((val: unknown) => {
-            if (typeof val == 'string') {
-                if (location !== val) setLocation(() => val)
-                return;
-            }
-            else {
-                setLocation("/")
-            }
-        })
-    }, [])
+  if (!context) {
+    throw new Error('useNav must be used inside PageProvider.');
+  }
 
+  return context;
+};
 
-
-
-    return <Context.Provider value={{ location, setLocation: navigate }}>
-        {location ? children:null}
-    </Context.Provider>
-}
-
-
-export function Path({ path, element, type = PAGE_TYPES.PUBLIC}: {
-    path: string,
-    element: React.ReactNode,
-    type?: string
+export function PageProvider({
+  children,
+  routes,
+}: {
+  children: ReactNode;
+  routes: readonly string[];
 }) {
-    const nav = useNav();
-    const auth = useAuth();
+  const validLocations = useMemo(
+    () => new Set(routes.map(normalizeLocation)),
+    [routes],
+  );
+  const resolveLocation = useCallback(
+    (location: string) => {
+      const normalizedLocation = normalizeLocation(location);
+      return validLocations.has(normalizedLocation)
+        ? normalizedLocation
+        : DEFAULT_LOCATION;
+    },
+    [validLocations],
+  );
+  const [navigation, setNavigation] = useState<NavigationState>({
+    history: [],
+    isReady: false,
+    location: DEFAULT_LOCATION,
+  });
 
-    if (type == PAGE_TYPES.UNKNOWN) {
-        if (auth.accessToken || auth.refreshToken) return null;
+  useEffect(() => {
+    let isMounted = true;
+
+    getItem<string>(LOCATION_STORAGE_KEY).then(storedLocation => {
+      if (!isMounted) {
+        return;
+      }
+
+      setNavigation({
+        history: [],
+        isReady: true,
+        location:
+          typeof storedLocation === 'string'
+            ? resolveLocation(storedLocation)
+            : DEFAULT_LOCATION,
+      });
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [resolveLocation]);
+
+  useEffect(() => {
+    if (navigation.isReady) {
+      setItem(LOCATION_STORAGE_KEY, navigation.location).catch(error => {
+        console.warn('Could not persist navigation location:', error);
+      });
+    }
+  }, [navigation.isReady, navigation.location]);
+
+  const navigate = useCallback((nextLocation: string) => {
+    const normalizedLocation = resolveLocation(nextLocation);
+
+    setNavigation(current => {
+      if (current.location === normalizedLocation) {
+        return current;
+      }
+
+      return {
+        ...current,
+        history: [...current.history, current.location],
+        location: normalizedLocation,
+      };
+    });
+  }, [resolveLocation]);
+
+  const replace = useCallback((nextLocation: string) => {
+    const normalizedLocation = resolveLocation(nextLocation);
+
+    setNavigation(current => {
+      if (current.location === normalizedLocation) {
+        return current;
+      }
+
+      return {
+        ...current,
+        location: normalizedLocation,
+      };
+    });
+  }, [resolveLocation]);
+
+  const goBack = useCallback(() => {
+    setNavigation(current => {
+      const previousLocation = current.history[current.history.length - 1];
+
+      if (!previousLocation) {
+        return current;
+      }
+
+      return {
+        ...current,
+        history: current.history.slice(0, -1),
+        location: previousLocation,
+      };
+    });
+  }, []);
+
+  const canGoBack = navigation.history.length > 0;
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (!canGoBack) {
+          return false;
+        }
+
+        goBack();
+        return true;
+      },
+    );
+
+    return () => subscription.remove();
+  }, [canGoBack, goBack]);
+
+  const value = useMemo<PageContextValue>(
+    () => ({
+      canGoBack,
+      goBack,
+      isReady: navigation.isReady,
+      location: navigation.location,
+      navigate,
+      replace,
+    }),
+    [canGoBack, goBack, navigate, navigation, replace],
+  );
+
+  return (
+    <Context.Provider value={value}>
+      {navigation.isReady ? children : null}
+    </Context.Provider>
+  );
+}
+
+export function Path({
+  path,
+  element,
+  type = PAGE_TYPES.PUBLIC,
+}: {
+  path: string;
+  element: ReactNode;
+  type?: string;
+}) {
+  const nav = useNav();
+  const auth = useAuth();
+  const normalizedPath = normalizeLocation(path);
+  const isCurrentPath = nav.location === normalizedPath;
+  const isAuthenticated = auth.isAuthenticated();
+
+  useEffect(() => {
+    if (!isCurrentPath || !auth.isReady) {
+      return;
     }
 
-    if (type == PAGE_TYPES.PRIVATE) {
-        if (!auth.accessToken || !auth.refreshToken) return null;
+    if (type === PAGE_TYPES.UNKNOWN && isAuthenticated) {
+      nav.replace('/rooms');
+    } else if (type === PAGE_TYPES.PRIVATE && !isAuthenticated) {
+      nav.replace('/');
     }
+  }, [auth.isReady, isAuthenticated, isCurrentPath, nav, type]);
 
-    if (nav.location !== path) return null;
+  if (!isCurrentPath || !auth.isReady) {
+    return null;
+  }
 
-    return <>
-        {element}
-    </>;
+  if (
+    (type === PAGE_TYPES.UNKNOWN && isAuthenticated) ||
+    (type === PAGE_TYPES.PRIVATE && !isAuthenticated)
+  ) {
+    return null;
+  }
+
+  return <>{element}</>;
 }
