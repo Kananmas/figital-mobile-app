@@ -1,6 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
 import { getItem, removeItem, setItem } from "../../utils/storage.utils"
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "../../constants/app.consts"
+import { AUTH_API_ENDPOINTS } from "../../constants/api.consts"
 
 interface AuthContext {
     accessToken: string | null,
@@ -9,6 +10,7 @@ interface AuthContext {
     setUserInfo: Function | Dispatch<SetStateAction<null | object | Object>>
     refreshToken: string | null,
     setRefreshToken: Function | Dispatch<SetStateAction<string>>
+    saveTokens: Function,
 }
 
 const Context = createContext<AuthContext>({
@@ -18,6 +20,7 @@ const Context = createContext<AuthContext>({
     setUserInfo: () => { },
     refreshToken: '',
     setRefreshToken: () => { },
+    saveTokens: () => { },
 })
 
 export const useAuth = () => useContext(Context);
@@ -37,37 +40,47 @@ export default function AuthProvider({ children }: React.PropsWithChildren) {
         getItem(ACCESS_TOKEN_KEY).then((value) => {
             if (typeof value === 'string') {
                 setAccessToken(() => value)
+                console.log(`${ACCESS_TOKEN_KEY}:${value}`)
+                intiUserInfo(value);
             }
-
-            console.log(value)
         })
 
         getItem(REFRESH_TOKEN_KEY).then((value) => {
             if (typeof value === 'string') {
                 setRefreshToken(() => value)
+                console.log(`${REFRESH_TOKEN_KEY}:${value}`)
             }
+
         })
     }
 
-    useEffect(() => {
+    async function intiUserInfo(accessToken: string) {
+        const response = await fetch(AUTH_API_ENDPOINTS.USER_PROFILE, {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+            }
+        })
+
+        if (response.ok) {
+            const userData = await response.json();
+            setUserInfo(() => userData.user);
+        }
+
+        if (response.status == 401) {
+            setAccessToken(() => "");
+            removeItem(ACCESS_TOKEN_KEY)
+        }
+    }
+
+    async function saveTokens() {
         if (accessToken) {
-            setItem(ACCESS_TOKEN_KEY, accessToken)
-            return;
+            await setItem(ACCESS_TOKEN_KEY, accessToken);
         }
 
-        removeItem(ACCESS_TOKEN_KEY)
-    }, [accessToken])
-
-
-    useEffect(() => {
         if (refreshToken) {
-            setItem(REFRESH_TOKEN_KEY, refreshToken)
-            return;
+            await setItem(REFRESH_TOKEN_KEY, refreshToken)
         }
-
-        removeItem(REFRESH_TOKEN_KEY)
-    }, [refreshToken])
-
+    }
 
     return <Context.Provider value={{
         accessToken,
@@ -75,7 +88,8 @@ export default function AuthProvider({ children }: React.PropsWithChildren) {
         userInfo,
         setUserInfo,
         refreshToken,
-        setRefreshToken
+        setRefreshToken,
+        saveTokens
     }}>
         {children}
     </Context.Provider>

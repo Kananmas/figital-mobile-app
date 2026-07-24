@@ -7,6 +7,8 @@ import { StyleSheet } from "react-native";
 import { useEvents } from "../../context/Events";
 import { useAuth } from "../../context/Auth";
 import { AUTH_API_ENDPOINTS } from "../../constants/api.consts";
+import { Loader } from "lucide-react-native";
+import { Text } from "react-native-svg";
 
 export default function AuthForm() {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -67,7 +69,7 @@ export default function AuthForm() {
             openSnackbar("لطفا کد را وارد نامید!");
             return;
         }
-
+        setLoading(() => true)
         const response = await fetch(AUTH_API_ENDPOINTS.VERIFY_OTP, {
             body: JSON.stringify({
                 phone_number: phoneNumber,
@@ -80,11 +82,12 @@ export default function AuthForm() {
             }
         })
 
-        setLoading(() => true)
         if (response.ok) {
             const result = await response.json();
             auth.setAccessToken(() => result.access_token)
-            openSnackbar("ورود با موفقیت!" , "success")
+            auth.setRefreshToken(() => response.headers.get("set-cookie") ?? "")
+            await auth.saveTokens();
+            openSnackbar("ورود با موفقیت!", "success")
         }
 
 
@@ -106,6 +109,15 @@ export default function AuthForm() {
         if (text.length < 7 && allNum) {
             setOtpCode(() => text);
         }
+    }
+
+    if (loading) {
+        return <View style={styles.loadingView}>
+            <Loader size={60} color={"#71eb25ff"}/>
+            <Text>
+                در حال ارسال
+            </Text>
+        </View>
     }
 
 
@@ -138,4 +150,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     inputStyles: { textAlign: 'center', fontSize: 18 },
+    loadingView: {
+        display: 'flex',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
 })

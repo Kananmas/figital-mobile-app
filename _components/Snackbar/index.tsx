@@ -81,7 +81,7 @@ export default function Snackbar() {
 const styles = StyleSheet.create({
     snackbar: {
         position: "absolute",
-        width: 310,
+        minWidth: 200,
         height: 60,
         borderWidth: 3,
         borderColor: 'black',
@@ -92,14 +92,15 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row-reverse',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
     },
     main: {
         display: 'flex',
         flexDirection: 'row-reverse',
         flex: 1,
+        width:'auto',
         gap:12,
         justifyContent: "center",
-        alignItems: 'center'
+        alignItems: 'flex-end',
     }
 })
