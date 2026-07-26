@@ -42,6 +42,7 @@ interface AuthContext {
   setRefreshToken: Dispatch<SetStateAction<string>>;
   setUserInfo: Dispatch<SetStateAction<UserInfo | null>>;
   userInfo: UserInfo | null;
+  logout:() => Promise<void>
 }
 
 const Context = createContext<AuthContext | null>(null);
@@ -113,7 +114,7 @@ export default function AuthProvider({children}: PropsWithChildren) {
         await removeItem(ACCESS_TOKEN_KEY);
       }
     },
-    [],
+    [accessToken],
   );
 
   const initTokens = useCallback(async () => {
@@ -173,6 +174,19 @@ export default function AuthProvider({children}: PropsWithChildren) {
     [accessToken, refreshToken],
   );
 
+  const logout = async () => {
+    await removeItem(ACCESS_TOKEN_KEY);
+    await removeItem(REFRESH_TOKEN_KEY);
+
+    setAccessToken(() => "");
+    setRefreshToken(() => "");
+    setUserInfo(() => null)
+
+    setIsReady(() => false);
+
+    replace("/")
+  }
+
   return (
     <Context.Provider
       value={{
@@ -185,6 +199,7 @@ export default function AuthProvider({children}: PropsWithChildren) {
         setRefreshToken,
         setUserInfo,
         userInfo,
+        logout,
       }}>
       {children}
     </Context.Provider>

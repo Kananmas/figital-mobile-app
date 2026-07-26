@@ -208,7 +208,7 @@ export function Path({
   const normalizedPath = normalizeLocation(path);
   const isCurrentPath = nav.location === normalizedPath;
   const isAuthenticated = auth.isAuthenticated();
-
+  console.log(nav.location)
   useEffect(() => {
     if (!isCurrentPath || !auth.isReady) {
       return;

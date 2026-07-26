@@ -10,6 +10,7 @@ import { AUTH_API_ENDPOINTS } from "../../constants/api.consts";
 import { Loader } from "lucide-react-native";
 import { useNav } from "../../context/Pages";
 import styleVars from "../../style.vars";
+import { useChat } from "../../context/Chat";
 
 export default function AuthForm() {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -19,6 +20,7 @@ export default function AuthForm() {
     const events = useEvents();
     const auth = useAuth();
     const nav = useNav();
+    const chat = useChat();
 
     function openSnackbar(message: string, mode = 'warning') {
         events.emitEvent("snackbar", {
@@ -90,9 +92,11 @@ export default function AuthForm() {
             const refreshToken = response.headers.get("set-cookie");
             auth.setAccessToken(() => accessToken)
             auth.setRefreshToken(() => refreshToken ?? "")
-            await auth.saveTokens(accessToken , refreshToken);
+            await auth.saveTokens(accessToken, refreshToken);
             openSnackbar("ورود با موفقیت!", "success")
+
             nav.replace("/rooms");
+            setShowOtp(() => false);
         }
 
 
@@ -118,7 +122,7 @@ export default function AuthForm() {
 
     if (loading) {
         return <View style={styles.loadingView}>
-            <Loader size={60} color={"#71eb25ff"}/>
+            <Loader size={60} color={"#71eb25ff"} />
             <Text style={styles.loadingText}>
                 در حال ارسال
             </Text>

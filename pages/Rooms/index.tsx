@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useChat } from "../../context/Chat";
 import styleVars from "../../style.vars";
 import { useNav } from "../../context/Pages";
+import LogoutButton from "../../_components/LogoutButton";
 
 export default function Rooms() {
     const chat = useChat();
@@ -9,6 +10,7 @@ export default function Rooms() {
 
     return <View style={styles.container}>
         <View style={styles.header}>
+            <LogoutButton />
             <Text style={styles.headerText}>گفتگوها</Text>
         </View>
         <View>
@@ -80,7 +82,8 @@ const styles = StyleSheet.create({
     header:{
         display:"flex",
         flexDirection:"row",
-        justifyContent:"center",
+        justifyContent:"space-between",
+        paddingHorizontal:styleVars.horizontalSpacing,
         alignItems:"center",
     },
     headerText: {

@@ -16,13 +16,14 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import {Edit2, Send, Trash2, X} from 'lucide-react-native';
+import { ArrowRightCircle, Edit2, Send, Trash2, X} from 'lucide-react-native';
 
 import {CHAT_API_ENDPOINTS} from '../../constants/api.consts';
 import {useAuth} from '../../context/Auth';
 import {useChat} from '../../context/Chat';
 import styleVars from '../../style.vars';
 import { useNav } from '../../context/Pages';
+import getCustomHeader from '../../utils/get-custom-header.utils';
 
 type Message = {
   id: string;
@@ -74,7 +75,7 @@ const formatTime = (value: string) =>
   });
 
 export default function ChatRoom() {
-  const {connection, currentRoom, user} = useChat();
+  const {connection, currentRoom , setCurrentRoom , user} = useChat();
   const auth = useAuth();
   const listRef = useRef<FlatList<MessageRow>>(null);
   const inputRef = useRef<TextInput>(null);
@@ -145,6 +146,9 @@ export default function ChatRoom() {
         const query = new URLSearchParams({roomId});
         const response = await fetch(
           `${CHAT_API_ENDPOINTS.MESSAGES}?${query.toString()}`,
+          {
+            headers:getCustomHeader(),
+          }
         );
         if (response.ok && !cancelled) {
           const roomMessages: Message[] = await response.json();
@@ -370,6 +374,16 @@ export default function ChatRoom() {
           <ActivityIndicator color="#4f8f19" />
         </View>
       ) : (
+        <>
+        <View style={{flexDirection:"row" , justifyContent:"space-between" , alignItems:"center" , paddingHorizontal:styleVars.horizontalSpacing}}>
+            <Text style={{fontWeight:'bold' , fontSize:18 , alignSelf:"center"}}>{currentRoom.name}</Text>
+            <Pressable onPress={() => {
+                replace("/rooms")
+                setCurrentRoom(() => null)
+            }}>
+                <ArrowRightCircle size={25} />
+            </Pressable>
+        </View>
         <FlatList
           contentContainerStyle={[
             styles.listContent,
@@ -386,6 +400,7 @@ export default function ChatRoom() {
           ref={listRef}
           renderItem={renderRow}
         />
+        </>
       )}
 
       <View style={styles.inputHolder}>

@@ -2,6 +2,7 @@ import { createContext, Dispatch, SetStateAction, useContext, useEffect, useStat
 import { CHAT_API_BASE, CHAT_API_ENDPOINTS } from "../../constants/api.consts";
 import { useAuth } from "../Auth";
 import { useEvents } from "../Events";
+import getCustomHeader from "../../utils/get-custom-header.utils";
 
 type Room = {
     id: string,
@@ -34,7 +35,9 @@ type ChatContext = {
     currentRoom: Room | null,
     setCurrentRoom: Function | Dispatch<SetStateAction<null | Room>>,
     user: UserInfo | null,
-    setUser: Function | Dispatch<SetStateAction<null | UserInfo>>
+    setUser: Function | Dispatch<SetStateAction<null | UserInfo>>,
+
+    init:() => Promise<void>,
 }
 
 const Context = createContext<ChatContext>({
@@ -45,7 +48,8 @@ const Context = createContext<ChatContext>({
     currentRoom: null,
     setCurrentRoom: () => { },
     user: null,
-    setUser: () => { }
+    setUser: () => { },
+    init:async() =>{}
 })
 
 
@@ -53,7 +57,11 @@ const startConnection = async (setConnection: Dispatch<SetStateAction<WebSocket 
     phone_number: string,
 }) => {
     if (!user) return;
-    const ws = new WebSocket(CHAT_API_BASE + `?phoneNumber=${user?.phone_number}`);
+    const ws = new WebSocket(CHAT_API_BASE + `?phoneNumber=${user?.phone_number}` , undefined ,{
+        headers:{
+            ...getCustomHeader()
+        }
+    });
 
     ws.onopen = () => {
         showSnackbar("اتصال به سرور برقرار شد.", "success")
@@ -83,14 +91,18 @@ export const useChat = () => useContext(Context)
 
 
 const getChatProfileInfo = async (phoneNumber: string, isAdmin = false) => {
-    const response = await fetch(CHAT_API_ENDPOINTS.USER + `?phoneNumber=${phoneNumber}&isAdmin=${isAdmin}`)
+    const response = await fetch(CHAT_API_ENDPOINTS.USER + `?phoneNumber=${phoneNumber}&isAdmin=${isAdmin}` , {
+        headers:getCustomHeader(),
+    })
     const result = await response.json();
 
     return result;
 }
 
 const getUserChatRooms = async (phoneNumber: string, setRooms: Dispatch<SetStateAction<null | Room[]>>) => {
-    const response = await fetch(CHAT_API_ENDPOINTS.ROOMS + `/${phoneNumber}`);
+    const response = await fetch(CHAT_API_ENDPOINTS.ROOMS + `/${phoneNumber}` , {
+        headers:getCustomHeader(),
+    });
     if (response.ok) {
         const result = await response.json();
         setRooms(result.rooms);
@@ -143,6 +155,7 @@ export default function ChatProvider({ children }: { children: React.ReactNode }
         setCurrentRoom,
         user,
         setUser,
+        init,
     }}>
         {children}
     </Context.Provider>
