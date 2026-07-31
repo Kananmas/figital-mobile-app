@@ -4,7 +4,7 @@ import { useAuth } from "../Auth";
 import { useEvents } from "../Events";
 import getCustomHeader from "../../utils/get-custom-header.utils";
 
-type Room = {
+export type Room = {
     id: string,
     name: string,
     user: string,
@@ -16,7 +16,7 @@ type Room = {
     updatedAt?:string,
 }
 
-type UserInfo = {
+export type UserInfo = {
     id: string,
     user: string,
     hasRoom: boolean,

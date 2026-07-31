@@ -16,11 +16,11 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { ArrowRightCircle, Edit2, Send, Trash2, X} from 'lucide-react-native';
+import { ArrowRightCircle, Edit2, Send, Trash2, X } from 'lucide-react-native';
 
-import {CHAT_API_ENDPOINTS} from '../../constants/api.consts';
-import {useAuth} from '../../context/Auth';
-import {useChat} from '../../context/Chat';
+import { CHAT_API_ENDPOINTS } from '../../constants/api.consts';
+import { useAuth } from '../../context/Auth';
+import { Room, useChat } from '../../context/Chat';
 import styleVars from '../../style.vars';
 import { useNav } from '../../context/Pages';
 import getCustomHeader from '../../utils/get-custom-header.utils';
@@ -34,13 +34,14 @@ type Message = {
 };
 
 type MessageRow =
-  | {key: string; type: 'date'; label: string}
-  | {key: string; type: 'message'; message: Message};
+  | { key: string; type: 'date'; label: string }
+  | { key: string; type: 'message'; message: Message };
 
 type SocketMessage =
-  | {type: 'new'; message: Message}
-  | {type: 'delete'; id: string}
-  | {type: 'update'; id?: string; message?: Message; content?: string};
+  | { type: 'new'; message: Message }
+  | { type: 'delete'; id: string }
+  | { type: 'update'; id?: string; message?: Message; content?: string }
+  | { type: 'new_room'; room: Room }
 
 const formatDateLabel = (value: string) => {
   const date = new Date(value);
@@ -75,7 +76,7 @@ const formatTime = (value: string) =>
   });
 
 export default function ChatRoom() {
-  const {connection, currentRoom , setCurrentRoom , user} = useChat();
+  const { connection, currentRoom, setCurrentRoom, user, setRooms } = useChat();
   const auth = useAuth();
   const listRef = useRef<FlatList<MessageRow>>(null);
   const inputRef = useRef<TextInput>(null);
@@ -84,7 +85,7 @@ export default function ChatRoom() {
   const [messageContent, setMessageContent] = useState('');
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const {replace} = useNav();
+  const { replace } = useNav();
 
   const roomId = currentRoom?.id;
   const phoneNumber = auth.userInfo?.phone_number;
@@ -143,11 +144,11 @@ export default function ChatRoom() {
     const getMessages = async () => {
       setIsLoading(true);
       try {
-        const query = new URLSearchParams({roomId});
+        const query = new URLSearchParams({ roomId });
         const response = await fetch(
           `${CHAT_API_ENDPOINTS.MESSAGES}?${query.toString()}`,
           {
-            headers:getCustomHeader(),
+            headers: getCustomHeader(),
           }
         );
         if (response.ok && !cancelled) {
@@ -181,6 +182,11 @@ export default function ChatRoom() {
       try {
         const data: SocketMessage = JSON.parse(String(event.data));
 
+        if (data.type === "new_room") {
+          const room: Room = data.room
+          setRooms((rooms) => [...(rooms ?? []), room]);
+        }
+
         if (data.type === 'new') {
           if (data.message.room_id !== roomId) {
             return;
@@ -211,14 +217,14 @@ export default function ChatRoom() {
             current.map(message =>
               message.id === editedId
                 ? {
-                    ...message,
-                    ...(data.message ?? {}),
-                    content:
-                      data.message?.content ??
-                      data.content ??
-                      selectedMessageRef.current?.content ??
-                      message.content,
-                  }
+                  ...message,
+                  ...(data.message ?? {}),
+                  content:
+                    data.message?.content ??
+                    data.content ??
+                    selectedMessageRef.current?.content ??
+                    message.content,
+                }
                 : message,
             ),
           );
@@ -256,7 +262,7 @@ export default function ChatRoom() {
     }
 
     if (selectedMessage) {
-      selectedMessageRef.current = {...selectedMessage, content};
+      selectedMessageRef.current = { ...selectedMessage, content };
       sendSocketPayload({
         type: 'update',
         content,
@@ -299,12 +305,12 @@ export default function ChatRoom() {
   const handleEdit = useCallback((message: Message) => {
     setSelectedMessage(message);
     setMessageContent(message.content);
-    inputRef.current?.setNativeProps({text: message.content});
+    inputRef.current?.setNativeProps({ text: message.content });
     inputRef.current?.focus();
   }, []);
 
   const renderRow = useCallback(
-    ({item}: {item: MessageRow}) => {
+    ({ item }: { item: MessageRow }) => {
       if (item.type === 'date') {
         return (
           <View style={styles.dateBadge}>
@@ -375,31 +381,31 @@ export default function ChatRoom() {
         </View>
       ) : (
         <>
-        <View style={{flexDirection:"row" , justifyContent:"space-between" , alignItems:"center" , paddingHorizontal:styleVars.horizontalSpacing}}>
-            <Text style={{fontWeight:'bold' , fontSize:18 , alignSelf:"center"}}>{currentRoom.name}</Text>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: styleVars.horizontalSpacing }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, alignSelf: "center" }}>{currentRoom.name}</Text>
             <Pressable onPress={() => {
-                replace("/rooms")
-                setCurrentRoom(() => null)
+              replace("/rooms")
+              setCurrentRoom(() => null)
             }}>
-                <ArrowRightCircle size={25} />
+              <ArrowRightCircle size={25} />
             </Pressable>
-        </View>
-        <FlatList
-          contentContainerStyle={[
-            styles.listContent,
-            rows.length === 0 && styles.emptyList,
-          ]}
-          data={rows}
-          keyExtractor={item => item.key}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>شما پیامی ندارید</Text>
-          }
-          onContentSizeChange={() =>
-            listRef.current?.scrollToEnd({animated: true})
-          }
-          ref={listRef}
-          renderItem={renderRow}
-        />
+          </View>
+          <FlatList
+            contentContainerStyle={[
+              styles.listContent,
+              rows.length === 0 && styles.emptyList,
+            ]}
+            data={rows}
+            keyExtractor={item => item.key}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>شما پیامی ندارید</Text>
+            }
+            onContentSizeChange={() =>
+              listRef.current?.scrollToEnd({ animated: true })
+            }
+            ref={listRef}
+            renderItem={renderRow}
+          />
         </>
       )}
 
@@ -436,7 +442,7 @@ export default function ChatRoom() {
             accessibilityLabel={selectedMessage ? 'ویرایش' : 'ارسال'}
             disabled={!messageContent.trim()}
             onPress={handleSend}
-            style={({pressed}) => [
+            style={({ pressed }) => [
               styles.sendButton,
               pressed && styles.sendButtonPressed,
               !messageContent.trim() && styles.sendButtonDisabled,
@@ -460,7 +466,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop:40,
+    paddingTop: 40,
   },
   listContent: {
     flexGrow: 1,
