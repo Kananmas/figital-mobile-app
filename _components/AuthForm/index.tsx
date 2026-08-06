@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import Input from "../Input";
 import FigitalButton from "../Button";
@@ -10,7 +10,6 @@ import { AUTH_API_ENDPOINTS } from "../../constants/api.consts";
 import { Loader } from "lucide-react-native";
 import { useNav } from "../../context/Pages";
 import styleVars from "../../style.vars";
-import { useChat } from "../../context/Chat";
 
 export default function AuthForm() {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -20,7 +19,12 @@ export default function AuthForm() {
     const events = useEvents();
     const auth = useAuth();
     const nav = useNav();
-    const chat = useChat();
+
+    useEffect(() => {
+        if(auth.isAuthenticated()) {
+            nav.replace("/rooms")
+        }
+    } , [auth.accessToken , auth.refreshToken])
 
     function openSnackbar(message: string, mode = 'warning') {
         events.emitEvent("snackbar", {

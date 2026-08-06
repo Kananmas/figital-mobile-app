@@ -38,6 +38,7 @@ type ChatContext = {
     setUser: Function | Dispatch<SetStateAction<null | UserInfo>>,
 
     init:() => Promise<void>,
+    refreshRooms:() => Promise<void>
 }
 
 const Context = createContext<ChatContext>({
@@ -49,7 +50,8 @@ const Context = createContext<ChatContext>({
     setCurrentRoom: () => { },
     user: null,
     setUser: () => { },
-    init:async() =>{}
+    init:async() =>{},
+    refreshRooms:async() => {}
 })
 
 
@@ -145,6 +147,12 @@ export default function ChatProvider({ children }: { children: React.ReactNode }
     }, [auth.accessToken, auth.refreshToken, auth.userInfo])
 
 
+    const refreshRooms= async () => {
+        if(!auth.userInfo?.phone_number) return;
+        (await getUserChatRooms(auth.userInfo?.phone_number , setRooms))
+    }
+
+
 
     return <Context.Provider value={{
         connection,
@@ -156,6 +164,7 @@ export default function ChatProvider({ children }: { children: React.ReactNode }
         user,
         setUser,
         init,
+        refreshRooms,
     }}>
         {children}
     </Context.Provider>

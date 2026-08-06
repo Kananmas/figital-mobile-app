@@ -1,13 +1,15 @@
-import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
+import { Pressable, StyleSheet, Text, View, ScrollView, RefreshControl } from "react-native";
 import { Room, useChat } from "../../context/Chat";
 import styleVars from "../../style.vars";
 import { useNav } from "../../context/Pages";
 import LogoutButton from "../../_components/LogoutButton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Rooms() {
     const chat = useChat();
     const nav = useNav();
+
+    const [refreshing , setRefreshing] = useState(false);
 
     const handleNewMessage = (event: WebSocketMessageEvent) => {
         const data = JSON.parse(event.data);
@@ -29,7 +31,7 @@ export default function Rooms() {
             <LogoutButton />
             <Text style={styles.headerText}>گفتگوها</Text>
         </View>
-        <ScrollView>
+        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={chat.refreshRooms}/>}>
             {
                 chat?.rooms?.length ? chat?.rooms?.map((room) => {
                     const creationDate = room.createdAt ? new Date(room.createdAt) : new Date();
