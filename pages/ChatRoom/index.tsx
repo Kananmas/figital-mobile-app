@@ -373,7 +373,7 @@ export default function ChatRoom() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={"padding"}
       style={styles.container}>
       {isLoading ? (
         <View style={styles.emptyContainer}>
