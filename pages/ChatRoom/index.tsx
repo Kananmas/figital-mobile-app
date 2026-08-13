@@ -24,6 +24,7 @@ import { Room, useChat } from '../../context/Chat';
 import styleVars from '../../style.vars';
 import { useNav } from '../../context/Pages';
 import getCustomHeader from '../../utils/get-custom-header.utils';
+import playNotifSound from '../../utils/play-notif-sound';
 
 type Message = {
   id: string;
@@ -260,7 +261,6 @@ export default function ChatRoom() {
     if (!content || !phoneNumber || !roomId) {
       return;
     }
-
     if (selectedMessage) {
       selectedMessageRef.current = { ...selectedMessage, content };
       sendSocketPayload({
@@ -370,7 +370,7 @@ export default function ChatRoom() {
   if (!currentRoom) {
     return null;
   }
-
+  
   return (
     <KeyboardAvoidingView
       behavior={"padding"}
@@ -381,8 +381,20 @@ export default function ChatRoom() {
         </View>
       ) : (
         <>
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: styleVars.horizontalSpacing }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 18, alignSelf: "center" }}>{currentRoom.name}</Text>
+          <View style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: styleVars.horizontalSpacing
+          }}>
+            <Text style={{
+              fontWeight: 'bold',
+              fontSize: 18,
+              alignSelf: "center"
+            }}>
+              {currentRoom.name.length < 15 ? currentRoom.name : 
+              `${currentRoom.name.slice(0, 15)}...`}
+            </Text>
             <Pressable onPress={() => {
               replace("/rooms")
               setCurrentRoom(() => null)

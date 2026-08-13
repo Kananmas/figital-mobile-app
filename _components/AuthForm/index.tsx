@@ -10,6 +10,7 @@ import { AUTH_API_ENDPOINTS } from "../../constants/api.consts";
 import { Loader } from "lucide-react-native";
 import { useNav } from "../../context/Pages";
 import styleVars from "../../style.vars";
+import playNotifSound from "../../utils/play-notif-sound";
 
 export default function AuthForm() {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -64,6 +65,7 @@ export default function AuthForm() {
         } catch (error) {
             if (error instanceof Error) {
                 openSnackbar(error?.message, 'error')
+                setLoading(() => false)
             }
         } finally {
             setLoading(() => false)
@@ -100,6 +102,7 @@ export default function AuthForm() {
             openSnackbar("ورود با موفقیت!", "success")
 
             nav.replace("/rooms");
+            playNotifSound();
             setShowOtp(() => false);
         }
 

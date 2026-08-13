@@ -4,12 +4,13 @@ import styleVars from "../../style.vars";
 import { useNav } from "../../context/Pages";
 import LogoutButton from "../../_components/LogoutButton";
 import { useEffect, useState } from "react";
+import playNotifSound from "../../utils/play-notif-sound";
 
 export default function Rooms() {
     const chat = useChat();
     const nav = useNav();
 
-    const [refreshing , setRefreshing] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     const handleNewMessage = (event: WebSocketMessageEvent) => {
         const data = JSON.parse(event.data);
@@ -17,6 +18,7 @@ export default function Rooms() {
             const room: Room = data.room
             chat.setRooms((rooms) => [...(rooms ?? []), room]);
         }
+        if (data.type == "new_room" || data.type == "new") playNotifSound();
     }
 
 
@@ -31,7 +33,7 @@ export default function Rooms() {
             <LogoutButton />
             <Text style={styles.headerText}>گفتگوها</Text>
         </View>
-        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={chat.refreshRooms}/>}>
+        <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={chat.refreshRooms} />}>
             {
                 chat?.rooms?.length ? chat?.rooms?.map((room) => {
                     const creationDate = room.createdAt ? new Date(room.createdAt) : new Date();
